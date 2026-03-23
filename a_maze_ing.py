@@ -1,4 +1,5 @@
 from MazeGenerator import MazeGenerator
+from parsing import parse_config
 wall_values = {"north": 1, "east": 2, "south": 4, "west": 8}
 
 
@@ -25,9 +26,13 @@ class Cell:
 
 
 if __name__ == "__main__":
-    maze = MazeGenerator(9, 9, None, False)
-    maze.forty_two_cells()
-    maze.generate()
-    maze.set_entry_exit()
-    path = maze.find_shortest_path()
-    maze.display(path)
+    config = parse_config()
+    if config:
+        maze = MazeGenerator(config['WIDTH'], config['HEIGHT'], config['SEED'],
+                            config['PERFECT'], config)
+        maze.forty_two_cells()
+        maze.generate()
+        maze.set_entry_exit()
+        path = maze.find_shortest_path()
+        maze.write_output(path)
+        maze.display(path)
