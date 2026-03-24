@@ -1,11 +1,10 @@
-import time
 import random
 
 
 class MazeGenerator:
     def __init__(
         self, width: int, height: int,
-            seed: int | None, perfect: bool) -> None:
+            seed: int | None, perfect: bool, config: dict) -> None:
         self.width = width
         self.height = height
         self.perfect = perfect
@@ -17,6 +16,7 @@ class MazeGenerator:
         self.blocked = [[False for _ in range(width)]
                         for _ in range(height)]
         self.seed = seed
+        self.config = config
 
     def check_bounds(self, x: int, y: int) -> bool:
         return 0 <= x < self.width and 0 <= y < self.height
@@ -136,7 +136,6 @@ class MazeGenerator:
                 if 0 <= x < self.width and 0 <= y < self.height:
                     self.blocked[y][x] = True
         else:
-            time.sleep(0.3)
             print(
                 "The maze size doesn't support '42' pattern !! minimum (9, 9)")
 
@@ -218,10 +217,12 @@ class MazeGenerator:
             self.make_non_perfect((self.width * self.height) // 12)
 
     def set_entry_exit(self) -> None:
-        self.entry = (0, 0)
-        self.exit = (self.width - 1, self.height - 1)
-        self.grid[0][0].open_wall("west")
-        self.grid[self.height - 1][self.width - 1].open_wall("east")
+        self.entry = self.config['ENTRY']
+        self.exit = self.config['EXIT']
+        if self.blocked[self.entry[1]][self.entry[0]]:
+            raise ValueError("The cell is reserved for 42")
+        if self.blocked[self.exit[1]][self.exit[0]]:
+            raise ValueError("The cell is reserved for 42")
 
     def get_connected_neighbors(self, x: int, y: int) -> list[tuple]:
         connected = []
@@ -298,17 +299,26 @@ class MazeGenerator:
                     f"Invalid path step: {(x1, y1)} -> {(x2, y2)}")
         return "".join(directions)
 
-    def write_output(self, filename: str, path: list[tuple]) -> None:
+    def write_output(self, path: list[tuple]) -> None:
         grid_hex = [[format(cell.walls, 'X') for cell in row]
                     for row in self.grid]
         path_directions = self.path_to_directions(path)
-        with open(filename, 'w') as f:
+        with open(self.config['OUTPUT_FILE'], 'w+') as f:
             for row in grid_hex:
                 for char in row:
                     f.write(char)
                 f.write("\n")
             f.write(f"\n{self.entry}\n{self.exit}")
             f.write(f"\n{path_directions}\n")
+
+    def get_data(self, path: list[tuple]) -> dict:
+        data = {}
+        data['width'] = self.width
+        data['height'] = self.height
+        data['grid'] = [[cell.walls for cell in row]
+                        for row in self.grid]
+        data['path'] = self.path_to_directions(path)
+        return data
 
     def display(self, path: list[tuple[int, int]] | None = None) -> None:
         path_set = set(path) if path else set()
