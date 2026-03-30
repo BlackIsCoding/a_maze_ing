@@ -38,7 +38,7 @@ def draw_maze(
     cell_width = 4
 
     exist_42 = 1
-    if width > 9 or height > 9:
+    if width > 9 and height > 9:
         exist_42 = 0
 
     for y in range(height):
@@ -63,8 +63,8 @@ def draw_maze(
             if (x, y) == entry:
                 stdscr.addstr(y * cell_height + 1, x * cell_width + 2, "🔵",
                               curses.color_pair(1))
-            if (y, x) == exit:
-                stdscr.addstr(x * cell_height + 1, y * cell_width + 2, "🏁",
+            if (x, y) == exit:
+                stdscr.addstr(y * cell_height + 1, x * cell_width + 2, "🏁",
                               curses.color_pair(2))
 
             if blocked_42[y][x] is True:
@@ -172,15 +172,15 @@ def draw_maze_game(
                                   curses.color_pair(rotate_color))
 
                 if not found_entry:
-                    if (y, x) == entry:
+                    if (x, y) == entry:
                         stdscr.addstr(y * cell_height + 1, x * cell_width + 2,
                                       "🧙", curses.color_pair(1))
                         player_y = y
                         player_x = x
                         found_entry = 1
                 if score >= 3:
-                    if (y, x) == exit:
-                        stdscr.addstr(x * cell_height + 1, y * cell_width + 2,
+                    if (x, y) == exit:
+                        stdscr.addstr(y * cell_height + 1, x * cell_width + 2,
                                       "🏆", curses.color_pair(2))
                         exit_y = x
                         exit_x = y
