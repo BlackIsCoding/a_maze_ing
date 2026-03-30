@@ -1,4 +1,5 @@
 import random
+from typing import Dict
 
 
 class MazeGenerator:
@@ -312,56 +313,10 @@ class MazeGenerator:
             f.write(f"\n{path_directions}\n")
 
     def get_data(self, path: list[tuple]) -> dict:
-        data = {}
+        data: Dict[str, int | str | list[list]] = {}
         data['width'] = self.width
         data['height'] = self.height
         data['grid'] = [[cell.walls for cell in row]
                         for row in self.grid]
         data['path'] = self.path_to_directions(path)
         return data
-
-    def display(self, path: list[tuple[int, int]] | None = None) -> None:
-        path_set = set(path) if path else set()
-
-        top = "+"
-        for x in range(self.width):
-            if self.grid[0][x].has_wall("north"):
-                top += "---+"
-            else:
-                top += "   +"
-        print(top)
-
-        for y in range(self.height):
-            middle = ""
-            bottom = "+"
-
-            for x in range(self.width):
-                cell = self.grid[y][x]
-
-                if x == 0:
-                    if cell.has_wall("west"):
-                        middle += "|"
-                    else:
-                        middle += " "
-
-                if self.blocked[y][x]:
-                    middle += " # "
-                elif (x, y) in path_set:
-                    middle += " * "
-                elif self.visited[y][x]:
-                    middle += " . "
-                else:
-                    middle += "   "
-
-                if cell.has_wall("east"):
-                    middle += "|"
-                else:
-                    middle += " "
-
-                if cell.has_wall("south"):
-                    bottom += "---+"
-                else:
-                    bottom += "   +"
-
-            print(middle)
-            print(bottom)
