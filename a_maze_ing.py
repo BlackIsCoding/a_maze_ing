@@ -9,13 +9,37 @@ wall_values = {"north": 1, "east": 2, "south": 4, "west": 8}
 
 
 class Cell:
+    """
+    Represents a single cell in the maze with walls.
+    """
     def __init__(self) -> None:
+        """
+        Initialize a cell with all walls closed.
+        """
         self.walls = 15
 
     def has_wall(self, direction: str) -> int:
+        """
+        Check if a wall exists in a given direction.
+
+        Args:
+            direction: One of 'north', 'east', 'south', 'west'.
+
+        Returns:
+            Non-zero if wall exists, otherwise 0.
+        """
         return (self.walls & wall_values[direction])
 
     def open_wall(self, direction: str) -> None:
+        """
+        Remove a wall in the given direction.
+
+        Args:
+            direction: Wall direction.
+
+        Raises:
+            ValueError: If wall is already open.
+        """
         if self.has_wall(direction):
             self.walls -= wall_values[direction]
         else:
@@ -23,6 +47,15 @@ class Cell:
                 f"The cell doesnt have this wall: {direction}")
 
     def close_wall(self, direction: str) -> None:
+        """
+        Add a wall in the given direction.
+
+        Args:
+            direction: Wall direction.
+
+        Raises:
+            ValueError: If wall is already closed.
+        """
         if not self.has_wall(direction):
             self.walls += wall_values[direction]
         else:
@@ -39,6 +72,12 @@ if __name__ == "__main__":
         path = None
 
         def generate_maze() -> Dict:
+            """
+            Generate a maze and compute its solution path.
+
+            Returns:
+            Dictionary containing maze data and blocked cells.
+            """
             maze = MazeGenerator(config['WIDTH'], config['HEIGHT'],
                                  config['SEED'],
                                  config['PERFECT'], config)
@@ -57,6 +96,7 @@ if __name__ == "__main__":
             except Exception as e:
                 print(e)
             else:
+                one_time = True
                 found_player = 0
                 stdscr = curses.initscr()
                 stdscr.keypad(True)
@@ -81,7 +121,7 @@ if __name__ == "__main__":
                             config["HEIGHT"] * 2) + 6 or max_x < (
                                 config['WIDTH'] * 4):
                         stdscr.clear()
-                        stdscr.addstr("too small")
+                        stdscr.addstr("too small", curses.color_pair(1))
                         stdscr.refresh()
                         max_y, max_x = stdscr.getmaxyx()
                         if max_y > (config["HEIGHT"] * 2 + 6):
@@ -135,7 +175,8 @@ if __name__ == "__main__":
                                     draw_maze(stdscr, path, output["output"],
                                               entry, exit, show_path,
                                               rotate_color,
-                                              output["blocked"])
+                                              output["blocked"], one_time)
+                                    one_time = False
                                 else:
                                     raise ValueError("no path !!")
                                 key = stdscr.getch()
@@ -147,7 +188,6 @@ if __name__ == "__main__":
                                     stdscr.clear()
 
                                 if key == ord('r'):
-                                    config['SEED'] = random.randint(0, 1000)
                                     output = generate_maze()
                                     stdscr.clear()
                                 if key == ord('c'):

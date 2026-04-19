@@ -27,9 +27,22 @@ def draw_maze(
         stdscr: window, path: list, config: dict, entry: tuple,
         exit: tuple, show_path: bool,
         rotate_color: int,
-        blocked_42: list
+        blocked_42: list,
+        one_time: bool
         ) -> None:
+    """
+    Draw the maze in the terminal.
 
+    Args:
+        stdscr: Curses window.
+        path: Solution path.
+        config: Maze configuration.
+        entry: Entry coordinates.
+        exit: Exit coordinates.
+        show_path: Whether to display solution.
+        rotate_color: Color scheme.
+        blocked_42: Blocked cells map.
+    """
     maze = config['grid']
 
     width = config['width']
@@ -43,7 +56,9 @@ def draw_maze(
 
     for y in range(height):
         for x in range(width):
-
+            if one_time:
+                stdscr.refresh()
+                time.sleep(0.02)
             # border up
             if check_wall["north"] & maze[y][x]:
                 stdscr.addstr(y * cell_height, x * cell_width, "+---",
@@ -92,7 +107,7 @@ def draw_maze(
             stdscr.addstr(y * cell_height + 1, x * cell_width + 2, "⭐",
                           curses.color_pair(1))
             stdscr.refresh()
-            time.sleep(0.09)
+            time.sleep(0.04)
 
     stdscr.addstr((height) * cell_height + 1, 0, "=== A-Maze-ing ===")
     stdscr.addstr((height) * cell_height + 2, 0, "[r]. Re-generate a new maze")
@@ -114,6 +129,20 @@ def draw_maze_game(
         rotate_color: int,
         blocked_42: list
         ) -> None:
+    """
+    Run interactive maze game.
+
+    Player moves inside the maze, collects items,
+    and tries to reach the exit.
+
+    Args:
+        stdscr: Curses window.
+        config: Maze configuration.
+        entry: Start position.
+        exit: Goal position.
+        rotate_color: Color scheme.
+        blocked_42: Blocked cells map.
+    """
     maze = config['grid']
 
     width = config['width']
